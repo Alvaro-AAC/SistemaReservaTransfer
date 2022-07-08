@@ -1,14 +1,48 @@
-body{
+@charset "UTF-8";
+
+body {
     background-color: #EDE9C7;
 }
-div{
-    margin: 50px 50px 50PX 50px;
-    padding: 100px;
-    text-align:center;
+
+#flexBox {
+    position: absolute;
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    justify-content: center;
 }
-h3{
-    color: aqua;
+
+#titulo {
+    position: absolute;
+    top: 3%;
+    width: 100%;
+    height: fit-content;
+    text-align: center;
 }
-#id {
-    align-items: center;
+
+#form {
+    align-self: center;
+    justify-self: center;
+    width: 25%;
+}
+
+#botonContenedor {
+    width: 100%;
+    text-align: center;
+}
+
+#botonPrincipal {
+    font-size: 1.5rem;
+}
+
+#lenguajes {
+    position: absolute;
+    bottom: 1%;
+    left: 1%;
+}
+
+.botonIdioma, .bandera {
+    width: 150px;
+    margin: 0px;
+    padding: 0px;
 }

@@ -1,0 +1,14 @@
+body{
+    background-color: #EDE9C7;
+}
+div{
+    margin: 50px 50px 50PX 50px;
+    padding: 100px;
+    text-align:center;
+}
+h3{
+    color: aqua;
+}
+#id {
+    align-items: center;
+}

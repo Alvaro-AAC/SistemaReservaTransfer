@@ -12,6 +12,8 @@ var planeDown = `
 var myInterval;
 var form = document.getElementById('form');
 var formStay = form.innerHTML;
+var input;
+var rutChofer;
 
 function changeErr() {
     if ($('#direccion').val()) {
@@ -49,7 +51,6 @@ function loading(elem) {
 }
 
 function next1() {
-    var input;
     input = $('#direccion').val()
     if(input) {
         loading(form);
@@ -77,7 +78,7 @@ function next1() {
                                         <td>${elem.nombre} ${elem.apellido}</td>
                                         <td>${elem.vehiculo.tipo_vehiculo.descripcion}</td>
                                         <td>${elem.empresa.nombre}</td>
-                                        <td><button class="btn btn-primary" id="btn-${elem.rut}">Reservar</button></td>
+                                        <td><button class="btn btn-primary" id="${elem.rut}" onclick="saveChofer(this)">Reservar</button></td>
                                     </tr>`;
                     }
                     table += '</tbody></table>';
@@ -101,3 +102,130 @@ function next1() {
         $('#direccion').keyup(changeErr);
     }
 }
+
+function ingresar_datos() {
+    var validado = $('#pasajeroForm')[0].reportValidity();
+
+    if(validado) {
+        var data = $('#pasajeroForm').serialize();
+        crear_reserva(data);
+    }
+
+}
+
+function saveChofer(e) {
+    $('#datosPasajero').modal('toggle');
+    rutChofer = e.id;
+}
+
+function crear_reserva(data) {
+    var cookies_array = document.cookie.split(';');
+    var cookies_dict = [];
+    var csrftoken;
+    cookies_array.forEach(elem => {
+        var temp = elem.split('=');
+        cookies_dict.push({
+            key: temp[0],
+            value: temp[1]
+        });
+    })
+    cookies_dict.forEach(elem => {
+        if(elem.key == 'csrftoken') {
+            csrftoken = elem.value;
+        }
+    })
+    $('#btnReserva').addClass('disabled');
+    $('#bodyModal').html('<progress class="pure-material-progress-circular"></progress>');
+    $('#bodyModal').addClass('text-center');
+    $.ajax({
+        type: 'POST',
+        url: '/api/viaje/post/',
+        headers: {"X-CSRFToken": csrftoken},
+        data: data + `&direccion=${input}&chofer=${rutChofer}&`,
+        success: function(data1) {
+            console.log(data1);
+            $.ajax({
+                type: 'GET',
+                url: `/api/viaje/${data1.id}/?format=json`,
+                success: function(data2) {
+                    $('#datosPasajero').modal('hide');
+                    $('#titulo').html('Su transfer ha sido reservado exitosamente.');
+                    var info = `
+                    <div class="bg-light p-5 rounded-pill text-center">
+                    <h3 class="text-decoration-underline">Datos del transfer</h3><be>
+                    <p>Nombre chofer: ${data2.chofer.nombre}  ${data2.chofer.apellido}</p>
+                    <p>Tipo vehículo: ${data2.chofer.vehiculo.tipo_vehiculo.descripcion}</p>
+                    <p>Color vehículo: ${data2.chofer.vehiculo.color}</p>
+                    <p>Patente: ${data2.chofer.vehiculo.patente}</p>
+                    <button class="btn btn-primary" onclick="reloadPage()">Finalizar</button>
+                    </div>
+                    <br>
+                    <div class="text-center">
+                    <img alt="Codigo QR" id="QRinfo"/>
+                    </div>
+                    `
+                    form.innerHTML = info;
+                    new QRious({
+                        element: $('#QRinfo')[0],
+                        value: `
+                            Chofer:
+                        Nombre - ${data2.chofer.nombre}  ${data2.chofer.apellido}
+                        Tipo -  ${data2.chofer.vehiculo.tipo_vehiculo.descripcion}
+                        Color - ${data2.chofer.vehiculo.color}
+                        Patente - ${data2.chofer.vehiculo.patente}
+
+                            Pasajero:
+                        Nombre - 
+                        `,
+                        size: 200,
+                        foreground: 'black',
+                        level: 'H'
+                    });
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 15000);
+                }
+            });
+        }
+    });
+
+}
+
+function reloadPage() {
+    window.location.reload();
+}
+
+function listenerInput() {
+    var rut = $('#id_rut').val().substring(0, $('#id_rut').val().length-2);
+    $.ajax({
+        type: 'GET',
+        url: `/api/pasajero/${rut}/?format=json`,
+        success: function(data) {
+            $('#id_nombre').val(data.nombre);
+            $('#id_apellido').val(data.apellido);
+            $('#id_telefono').val(data.telefono);
+            $('#id_nombre').attr('readonly', 'readonly');
+            $('#id_apellido').attr('readonly', 'readonly');
+            $('#id_telefono').attr('readonly', 'readonly');
+        },
+        error: function(data) {
+            $('#id_nombre').val($('#id_nombre').val());
+            $('#id_apellido').val($('#id_apellido').val());
+            $('#id_telefono').val($('#id_telefono').val());
+            $('#id_nombre').removeAttr('readonly', 'readonly');
+            $('#id_apellido').removeAttr('readonly', 'readonly');
+            $('#id_telefono').removeAttr('readonly', 'readonly');
+        }
+    });
+}
+
+$(document).ready(function() {
+    var timer;
+    $('#id_nombre').attr('readonly', 'readonly');
+    $('#id_apellido').attr('readonly', 'readonly');
+    $('#id_telefono').attr('readonly', 'readonly');
+    $('#id_rut').on('input', function() {
+        window.clearTimeout(timer);
+        timer = setTimeout(listenerInput.bind(this), 1000);
+    });
+});

@@ -81,7 +81,7 @@ WSGI_APPLICATION = 'IngSoftware.wsgi.application'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {},
+    'default': {}
 }
 
 

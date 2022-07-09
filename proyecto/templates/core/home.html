@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+    
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -12,15 +13,16 @@
 </head>
 <body>
     <div class="container-fluid m-0 p-0" id="contenedorPrincipal">
-        <div id="titulo">
-            <h1>Reserva de Transfer</h1>
+        <div>
+            <h1 id="titulo">Reserva de Transfer</h1>
         </div>
         <div id="flexBox">
             <div id="form">
                 <label for="direccion" class="form-label m-0 p-0"><h4>Direccion de destino:</h4></label><br>
-                <input class="form-control mb-3" id="direccion" type="text" placeholder="Escriba la direccion...">
+                <input class="form-control" id="direccion" type="text" placeholder="Escriba la direccion...">
+                <span style="display: block; color: tomato;" id="err" class="mb-3 mt-1">&nbsp;</span>
                 <div id="botonContenedor">
-                    <button class="btn btn-primary pe-5 ps-5 fw-bold" value="Siguiente" id="botonPrincipal">Siguiente</button>
+                    <button class="btn btn-primary pe-5 ps-5 fw-bold" value="Siguiente" id="botonPrincipal" onclick="next1()">Siguiente</button>
                 </div>
                 <br><br><br><br>
             </div>
